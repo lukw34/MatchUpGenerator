@@ -1,0 +1,27 @@
+{
+  "name": "react-express-webpack-mongoose-template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:server": "node app"
+  },
+  "author": "Lukasz Walewski",
+  "contributors": [
+    {
+      "name": "Lukasz Walewski",
+      "email": "lukw34@gmail.com"
+    }
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.16.0",
+    "colors": "^1.1.2",
+    "express": "^4.14.0",
+    "mongoose": "^4.7.7",
+    "winston": "^2.3.1",
+    "winston-request-logger": "^1.0.7"
+  },
+  "devDependencies": {
+  }
+}
