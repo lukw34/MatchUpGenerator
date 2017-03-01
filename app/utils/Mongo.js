@@ -6,7 +6,7 @@ class Mongo {
     connect(url = '') {
         return new Promise((resolve, reject) => {
             global.logger.log('Connecting to MongoDB...');
-
+            this.mongoose.Promise = global.Promise;
             this.mongoose.connect(url, error => {
                 error ? reject(error) : resolve();
             });

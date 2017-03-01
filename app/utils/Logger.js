@@ -2,18 +2,23 @@ class Logger {
 
     constructor() {
         this.colors = require('colors');
+        this.dateFormat = require('dateformat');
+    }
+
+    _getDate() {
+        return this.dateFormat(new Date(), "mmmm dS, yyyy, h:MM:ss TT");
     }
 
     warn(warning) {
-        console.log(this.colors.yellow(warning));
+        console.log(`${this._getDate()}: ${this.colors.yellow(warning)}`);
     }
 
     error(error) {
-        console.log(this.colors.red.bold(error));
+        console.log(`${this._getDate()}: ${this.colors.red.bold(error)}`);
     }
 
     log(log) {
-        console.log(this.colors.underline(log));
+        console.log(`${this._getDate()}: ${this.colors.green.underline(log)}`);
     }
 }
 

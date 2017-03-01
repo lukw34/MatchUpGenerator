@@ -9,10 +9,11 @@ class SocketController {
         const nsp = io.nsps['/'];
         this.roomCtrl = new this.RoomController(this.roomId, io);
         io.on('connection', socket => {
-            logger.log('Client was joined');
+            logger.log('Player joined');
             socket.on('get-game', player => {
+                socket.removeAllListeners('get-game');
                 const room = nsp.adapter.rooms[`room-${this.roomId}`];
-                if (room && room.length > 1) {
+                if ((room && room.length > 1) || !this.roomCtrl.canAcceptPlayer()) {
                     this.roomId++;
                     this.roomCtrl = new this.RoomController(this.roomId, io)
                 }
@@ -21,7 +22,6 @@ class SocketController {
             });
         });
     }
-
 }
 
 module.exports = SocketController;
