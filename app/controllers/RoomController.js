@@ -8,6 +8,7 @@ class RoomController {
         this.players = [];
         this.playerLimit = 2;
         this.room = this.io.sockets.in(this.roomId);
+        this.playersOrder = [];
 
         this.points = {
             winner: 3,
@@ -46,6 +47,7 @@ class RoomController {
                 gameData = Object.assign({}, game, {me, opponents});
             socket.emit('game-ready', gameData);
         });
+        this._setPlayersOrder(firstPlayer);
     }
 
     _handleNextTurn() {
@@ -76,8 +78,9 @@ class RoomController {
                             sockets.forEach(val => val.emit('result-looser'));
                         });
                 } else {
-                    logger.log(`Next turn in ${this.roomId}`);
-                    this._emitInRoom('next-turn', {fields});
+                    const playerId = this._getNextPlayer();
+                    logger.log(`Next turn in ${this.roomId} (PlayerId: ${playerId})`);
+                    this._emitInRoom('next-turn', {fields, playerId});
                 }
             });
         });
@@ -85,6 +88,17 @@ class RoomController {
 
     _emitInRoom(event, msg) {
         this.players.forEach(({socket}) => socket.emit(event, msg));
+    }
+
+    _setPlayersOrder(first) {
+        this.playersOrder.push(first);
+        this.players.filter(({id}) => id !== first).forEach(({id}) => this.playersOrder.push(id));
+    }
+
+    _getNextPlayer() {
+        const nextPlayer = this.playersOrder.shift();
+        this.playersOrder.push(nextPlayer);
+        return nextPlayer;
     }
 }
 
