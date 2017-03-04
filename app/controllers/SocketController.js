@@ -9,7 +9,6 @@ class SocketController {
         const nsp = io.nsps['/'];
         this.roomCtrl = new this.RoomController(this.roomId, io);
         io.on('connection', socket => {
-            logger.log('Player joined');
             socket.on('get-game', player => {
                 socket.removeAllListeners('get-game');
                 const room = nsp.adapter.rooms[`room-${this.roomId}`];

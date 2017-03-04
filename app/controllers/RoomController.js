@@ -1,13 +1,11 @@
 const LeaderboardController = require('./LeaderboardController');
 
 class RoomController {
-    constructor(roomNo, io) {
-        this.io = io;
+    constructor(roomNo) {
         this.leaderboardCtrl = new LeaderboardController();
         this.roomId = `room-${roomNo}`;
         this.players = [];
         this.playerLimit = 2;
-        this.room = this.io.sockets.in(this.roomId);
         this.playersOrder = [];
 
         this.points = {
@@ -19,21 +17,45 @@ class RoomController {
 
     joinPlayer(player, socket) {
         socket.join(this.roomId);
-        const id = (this.players.length + 1).toString();
-        this.room.emit('match-up');
+        logger.log(`${player.name} joined to ${this.roomId}`);
+        const id = this.players.length;
         this.players.push(Object.assign({}, player, {id, socket}));
-        if (id >= this.playerLimit) {
+        this._handleDisconnect(socket, {id, name: player.name});
+        if (id >= this.playerLimit - 1) {
             this._emitReady();
             this._handleNextTurn();
         }
     }
 
-    canAcceptPlayer() {
-        return this.players.length < 2;
+    _handleDisconnect(socket, {name, id}) {
+        socket.on('disconnect', () => {
+            logger.log(`${name} disconnect from room ${this.roomId}`);
+            if (this.players.length < this.playerLimit) {
+                socket.leave(this.roomId, () => {
+                    this.players.splice(id, 1);
+                    this.players
+                        .filter(val => val.id >= id)
+                        .map(val => Object.assign({}, val, {id: val.id - 1}));
+                });
+            } else {
+                this.players
+                    .filter(val => val.id !== id)
+                    .forEach(({socket, name}) => {
+                        socket.emit('player-disconnect');
+                        this.leaderboardCtrl.save(name, this.points.winner);
+                        this._closeRoom();
+                    });
+            }
+        });
+    }
+
+    _closeRoom() {
+        this.players = [];
+        this.playerLimit = 0;
     }
 
     _emitReady() {
-        const firstPlayer = (Math.floor(Math.random() * this.players.length) + 1).toFixed(0),
+        const firstPlayer = Math.round(Math.random() * (this.players.length - 1)),
             game = {
                 firstPlayer,
             };
@@ -50,6 +72,12 @@ class RoomController {
         this._setPlayersOrder(firstPlayer);
     }
 
+    _setPlayersOrder(first) {
+        this.playersOrder.push(first);
+        this.players.filter(({id}) => id !== first).forEach(({id}) => this.playersOrder.push(id));
+    }
+
+
     _handleNextTurn() {
         this.players.forEach(({socket}) => {
             socket.on('turn-completed', ({fields, id, draw, winner}) => {
@@ -58,6 +86,7 @@ class RoomController {
                     const promises = [];
                     this.players.forEach(({name}) => promises.push(this.leaderboardCtrl.save(name, this.points.draw)));
                     Promise.all(promises).then(() => this._emitInRoom('result-draw'));
+                    this._closeRoom();
                 } else if (winner) {
                     const {name, socket} = this.players[id - 1],
                         sockets = [];
@@ -76,6 +105,7 @@ class RoomController {
                         })
                         .then(() => {
                             sockets.forEach(val => val.emit('result-looser'));
+                            this._closeRoom();
                         });
                 } else {
                     const playerId = this._getNextPlayer();
@@ -90,15 +120,14 @@ class RoomController {
         this.players.forEach(({socket}) => socket.emit(event, msg));
     }
 
-    _setPlayersOrder(first) {
-        this.playersOrder.push(first);
-        this.players.filter(({id}) => id !== first).forEach(({id}) => this.playersOrder.push(id));
-    }
-
     _getNextPlayer() {
         const nextPlayer = this.playersOrder.shift();
         this.playersOrder.push(nextPlayer);
         return nextPlayer;
+    }
+
+    canAcceptPlayer() {
+        return this.players.length < this.playerLimit;
     }
 }
 
