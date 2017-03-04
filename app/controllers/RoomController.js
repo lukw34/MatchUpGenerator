@@ -75,8 +75,8 @@ class RoomController {
     }
 
     _setPlayersOrder(first) {
-        this.playersOrder.push(first);
         this.players.filter(({id}) => id !== first).forEach(({id}) => this.playersOrder.push(id));
+        this.playersOrder.push(first);
     }
 
 
