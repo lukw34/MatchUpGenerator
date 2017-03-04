@@ -42,14 +42,16 @@ class RoomController {
                     .filter(val => val.id !== id)
                     .forEach(({socket, name}) => {
                         socket.emit('player-disconnect');
-                        this.leaderboardCtrl.save(name, this.points.winner);
-                        this._closeRoom();
+                        this.leaderboardCtrl.save(name, this.points.winner).then(() => {
+                            this._closeRoom();
+                        });
                     });
             }
         });
     }
 
     _closeRoom() {
+        this.players.forEach(({socket}) => socket.disconnect());
         this.players = [];
         this.playerLimit = 0;
     }
@@ -85,10 +87,13 @@ class RoomController {
                     logger.log(`Draw in ${this.roomId}`);
                     const promises = [];
                     this.players.forEach(({name}) => promises.push(this.leaderboardCtrl.save(name, this.points.draw)));
-                    Promise.all(promises).then(() => this._emitInRoom('result-draw'));
-                    this._closeRoom();
+                    Promise.all(promises).then(() => {
+                        this._emitInRoom('result-draw');
+                        this._closeRoom();
+                    });
+
                 } else if (winner) {
-                    const {name, socket} = this.players[id - 1],
+                    const {name, socket} = this.players[id],
                         sockets = [];
                     this.leaderboardCtrl.save(name, this.points.winner)
                         .then(() => {
