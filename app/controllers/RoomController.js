@@ -24,6 +24,8 @@ class RoomController {
         if (id >= this.playerLimit - 1) {
             this._emitReady();
             this._handleNextTurn();
+            this._handleDraw();
+            this._handleWinner();
         }
     }
 
@@ -79,44 +81,52 @@ class RoomController {
         this.playersOrder.push(first);
     }
 
+    _handleWinner() {
+        this.players.forEach(({socket}) => {
+            socket.on('completed-winner', ({id}) => {
+                const {name, socket} = this.players[id],
+                    sockets = [];
+                this.leaderboardCtrl.save(name, this.points.winner)
+                    .then(() => {
+                        logger.log(`${name} is winner in ${this.roomId}`);
+                        socket.emit('result-winner');
+                        const promises = [];
+                        this.players
+                            .filter((val) => val.id !== id)
+                            .forEach(({name, socket}) => {
+                                sockets.push(socket);
+                                promises.push(this.leaderboardCtrl.save(name, this.points.lost));
+                            });
+                        return Promise.all(promises);
+                    })
+                    .then(() => {
+                        sockets.forEach(val => val.emit('result-looser'));
+                        this._closeRoom();
+                    });
+            });
+        });
+    }
+
+    _handleDraw() {
+        this.players.forEach(({socket}) => {
+            socket.on('completed-draw', () => {
+                logger.log(`Draw in ${this.roomId}`);
+                const promises = [];
+                this.players.forEach(({name}) => promises.push(this.leaderboardCtrl.save(name, this.points.draw)));
+                Promise.all(promises).then(() => {
+                    this._emitInRoom('result-draw');
+                    this._closeRoom();
+                });
+            });
+        });
+    }
 
     _handleNextTurn() {
         this.players.forEach(({socket}) => {
-            socket.on('turn-completed', ({fields, id, draw, winner}) => {
-                if (draw) {
-                    logger.log(`Draw in ${this.roomId}`);
-                    const promises = [];
-                    this.players.forEach(({name}) => promises.push(this.leaderboardCtrl.save(name, this.points.draw)));
-                    Promise.all(promises).then(() => {
-                        this._emitInRoom('result-draw');
-                        this._closeRoom();
-                    });
-
-                } else if (winner) {
-                    const {name, socket} = this.players[id],
-                        sockets = [];
-                    this.leaderboardCtrl.save(name, this.points.winner)
-                        .then(() => {
-                            logger.log(`${name} is winner in ${this.roomId}`);
-                            socket.emit('result-winner');
-                            const promises = [];
-                            this.players
-                                .filter((val) => val.id !== id)
-                                .forEach(({name, socket}) => {
-                                    sockets.push(socket);
-                                    promises.push(this.leaderboardCtrl.save(name, this.points.lost));
-                                });
-                            return Promise.all(promises);
-                        })
-                        .then(() => {
-                            sockets.forEach(val => val.emit('result-looser'));
-                            this._closeRoom();
-                        });
-                } else {
-                    const playerId = this._getNextPlayer();
-                    logger.log(`Next turn in ${this.roomId} (PlayerId: ${playerId})`);
-                    this._emitInRoom('next-turn', {fields, playerId});
-                }
+            socket.on('turn-completed', ({fields}) => {
+                const playerId = this._getNextPlayer();
+                logger.log(`Next turn in ${this.roomId} (PlayerId: ${playerId})`);
+                this._emitInRoom('next-turn', {fields, playerId});
             });
         });
     }
