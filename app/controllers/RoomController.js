@@ -32,7 +32,7 @@ class RoomController {
     _handleDisconnect(socket, {name, id}) {
         socket.on('disconnect', () => {
             logger.log(`${name} disconnect from room ${this.roomId}`);
-            if (this.players.length < this.playerLimit) {
+            if (this.players.length != this.playerLimit) {
                 socket.leave(this.roomId, () => {
                     this.players.splice(id, 1);
                     this.players
@@ -53,9 +53,9 @@ class RoomController {
     }
 
     _closeRoom() {
+        this.playerLimit = 0;
         this.players.forEach(({socket}) => socket.disconnect());
         this.players = [];
-        this.playerLimit = 0;
     }
 
     _emitReady() {
