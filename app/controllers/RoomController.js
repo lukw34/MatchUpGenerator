@@ -16,6 +16,17 @@ class RoomController {
     }
 
     joinPlayer(player, socket) {
+       if(!this._checkIfPlayerExist(player.name)) {
+           this._handleJoining(player, socket);
+       }
+
+    }
+
+    _checkIfPlayerExist(playerName) {
+        return this.players.filter(({name}) => name === playerName).length != 0;
+    }
+
+    _handleJoining(player, socket) {
         socket.join(this.roomId);
         logger.log(`${player.name} joined to ${this.roomId}`);
         const id = this.players.length;
