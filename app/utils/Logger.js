@@ -1,5 +1,7 @@
+/**
+ * Class to log information/warnings/errors
+ */
 class Logger {
-
     constructor() {
         this.colors = require('colors');
         this.dateFormat = require('dateformat');

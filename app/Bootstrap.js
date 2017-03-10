@@ -1,4 +1,11 @@
+/**
+ * Bootstrap all server elements
+ */
 class Bootstrap {
+    /**
+     * @method constructor
+     * @description Create Bootstrap object
+     */
     constructor() {
         const Logger = require('./utils/Logger'),
             SocketController = require('./controllers/SocketController');
@@ -12,12 +19,16 @@ class Bootstrap {
         this.socket = new SocketController();
         this.mongo = 'mongodb://localhost/matchUpGenerator';
 
-        //global variable
+        //global variables
         global.logger = new Logger();
         global.Mongo = new this.MongooseUtils(require('mongoose'));
 
     }
 
+    /**
+     * @method run
+     * @description start express server with socket and db connection
+     */
     run() {
         global.logger.log('Run application ...');
 
@@ -29,6 +40,12 @@ class Bootstrap {
         });
     }
 
+    /**
+     * @method _startExpress
+     * @description  Init express server
+     * @param {object} routes
+     * @private
+     */
     _startExpress(routes) {
         const app = new this.Express(),
             http = require('http').Server(app),
@@ -54,8 +71,6 @@ class Bootstrap {
             global.logger.error('Application runtime error !');
             process.exit(1);
         })
-
-
     }
 }
 

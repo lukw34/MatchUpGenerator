@@ -1,11 +1,25 @@
 const BaseController = require('./BaseController');
-
+/**
+ * Represent GameController.
+ * @extends BaseController
+ */
 class GameController extends BaseController {
+    /**
+     * @method GameController
+     * @description Create game controller
+     */
     constructor() {
         super();
         this.Player = require('../models/Player');
     }
 
+    /**
+     * @method save
+     * @description update player ranking
+     * @param {string} name
+     * @param {number} points
+     * @returns {Promise}
+     */
     save(name, points) {
         return this.Player.findOne({name}, (err, player) => {
             if (err) {
@@ -20,8 +34,13 @@ class GameController extends BaseController {
         });
     }
 
+    /**
+     * @method getLeaders
+     * @description Get Top 10 players from ranking
+     * @param {Object} req
+     * @param {Object} res
+     */
     getLeaders(req, res) {
-
         this.Player.find({}).sort('-points').limit(10).lean().exec((err, list) => {
             if (err) {
                 res.status(400).send({message: err.message})
@@ -31,6 +50,13 @@ class GameController extends BaseController {
         });
     }
 
+    /**
+     * @method _addPosition
+     * @description Decorate player object with position
+     * @param {Array} players
+     * @returns {Array|QueryCursor|*}
+     * @private
+     */
     _addPosition(players) {
         let actualPosition = 1,
             prevPlayerPoints;

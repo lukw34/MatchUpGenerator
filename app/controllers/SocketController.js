@@ -1,10 +1,22 @@
+/**
+ * Represent socket logic
+ */
 class SocketController {
+    /**
+     * @method constructor
+     * @description Create SocketController
+     */
     constructor() {
         this.socket = require('socket.io');
         this.RoomController = require('./RoomController');
         this.roomId = 1;
     }
 
+    /**
+     * @method activateSocket
+     * @description Init socket configuration
+     * @param {object} io
+     */
     activateSocket(io) {
         const nsp = io.nsps['/'];
         this.roomCtrl = new this.RoomController(this.roomId, io);

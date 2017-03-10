@@ -1,3 +1,6 @@
+/**
+ *  Player schema in db
+ */
 const PlayerSchema = new Mongo.mongoose.Schema({
     id: {
         type: 'ObjectId'

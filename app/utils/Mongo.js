@@ -1,3 +1,6 @@
+/**
+ * Class Mongo - utils to manage mongodb
+ */
 class Mongo {
     constructor(mongoose) {
         this.mongoose = mongoose;
