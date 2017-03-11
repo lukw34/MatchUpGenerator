@@ -16,11 +16,11 @@ important part of this list are:
 $ npm install
 ```
 - To run server use
- ```bash
- $ node app
- 
- $ npm run start:server
- ```
+```bash
+$ node app
+$ npm run start:server
+```
+
 ###3. Events
 | Event | Description | MessageExample |Type |
 | ------ | ----------- | ---- | ---
@@ -36,6 +36,8 @@ $ npm install
 | result-looser | Emit to user(s) which lost game in room | ```{}``` | **emit**
 | completed-draw | Fired when game end, but is no winner | ```{}``` | **on**
 | result-draw | Emit information that is draw in room to all users | ```{}```| **emit**
+
+
 ###4. Example of game scenario
 - connect to server
 - emit **get-game** with your player information
