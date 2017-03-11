@@ -5,17 +5,17 @@ It is socket server to create game session for given number of players.
 Communication is set up by sockets. It's mean, that connection is full duplex.
 Server is written in JavaScript with package defined in package.json. The most
 important part of this list are:
-⋅⋅* [express](https://expressjs.com/) 
-⋅⋅* [socket.io](https://github.com/socketio/socket.io)
-⋅⋅* [mongoose](http://mongoosejs.com/)
+   - [express](https://expressjs.com/) 
+   - [socket.io](https://github.com/socketio/socket.io)
+   - [mongoose](http://mongoosejs.com/)
 
 ###2. Installation and running
-⋅⋅* You have to install mongodb and set up it on port 27017.
-⋅⋅* In project directory run installation of dependencies
+- You have to install mongodb and set up it on port 27017.
+- In project directory run installation of dependencies
 ```bash 
 $ npm install
 ```
-⋅⋅* To run server use
+- To run server use
  ```bash
  $ node app
  
@@ -37,10 +37,10 @@ $ npm install
 | completed-draw | Fired when game end, but is no winner | ```{}``` | **on**
 | result-draw | Emit information that is draw in room to all users | ```{}```| **emit**
 ###4. Example of game scenario
-⋅⋅*connect to server
-⋅⋅* emit **get-game** with your player information
-⋅⋅* wait for **game-ready** event.
-⋅⋅* use **turn-completed**, **completed-winner** and **completed-draw** to deal with game logic. 
+- connect to server
+- emit **get-game** with your player information
+- wait for **game-ready** event.
+- use **turn-completed**, **completed-winner** and **completed-draw** to deal with game logic. 
 
 ###5. Example apps
-⋅⋅* [CrossRings](https://github.com/lukw34/CrossRings)
+- [CrossRings](https://github.com/lukw34/CrossRings)
