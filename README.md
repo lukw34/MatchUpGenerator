@@ -1,16 +1,16 @@
 #MatchUpGenerator
 ***
 ###1. Description
-It is socket server to create game session for given number of players.
-Communication is set up by sockets. It's mean, that connection is full duplex.
-Server is written in JavaScript with package defined in package.json. The most
+This is socket server that creates game session for given number of players.
+Communication is set up by sockets. That means the connection is full duplex.
+Server is written in JavaScript with packages defined in package.json. The most
 important part of this list are:
    - [express](https://expressjs.com/) 
    - [socket.io](https://github.com/socketio/socket.io)
    - [mongoose](http://mongoosejs.com/)
 
 ###2. Installation and running
-- You have to install mongodb and set up it on port 27017.
+- You have to install mongodb and set it up on port 27017.
 - In project directory run installation of dependencies
 ```bash 
 $ npm install
@@ -26,16 +26,16 @@ $ npm run start:server
 | ------ | ----------- | ---- | ---
 | connection  | Fired when socket connect to server. | ```{}``` | **on**
 | get-game | Fired when client socket want to join game. | ``` {name: 'playerName'}``` |**on**
-| game-ready | Emit event if in room is given number of player. Message object contain properties: firstPlayer, me, opponents. | ```{firstPlayer: 1, me: {name: 'meName', id: 0}, opponents: [{name: 'opponentName', id: 1}]}``` | **emit**
-| disconnect | Fired when socket disconnect. | ```{}``` | **on**
-| player-disconnect | Emit when opponent disconnect to other players. | ```{}``` | **emit**
-| turn-completed | Fired when player end turn. You should pass field object which contain common game structure like field values. | ```{fields: []}``` | **on**
-| next-turn | Emit to all users in room if next urn is triggered. Send message with field to update view and id of player which should make move. | ```{fields: [], playerId: actualPlayerId}``` | **emit**
-| completed-winner | Fired when actual player make winning move. | ```{id: playerId}``` | **on**
+| game-ready | Emit event if in room is enough number of player. Message object contain properties: firstPlayer, me, opponents. | ```{firstPlayer: 1, me: {name: 'meName', id: 0}, opponents: [{name: 'opponentName', id: 1}]}``` | **emit**
+| disconnect | Fired on socket disconnect. | ```{}``` | **on**
+| player-disconnect | Emit when opponent disconnect from other players. | ```{}``` | **emit**
+| turn-completed | Fired when player end his turn. You should pass field object which contains common game structure like field values. | ```{fields: []}``` | **on**
+| next-turn | Emit to all users in room if next turn is triggered. Send message with field to update view and id of player which should make next move. | ```{fields: [], playerId: actualPlayerId}``` | **emit**
+| completed-winner | Fired when current player make winning move. | ```{id: playerId}``` | **on**
 | result-winner | Emit to user which is a winner of game in room. | ```{}``` | **emit**
 | result-looser | Emit to user(s) which lost game in room | ```{}``` | **emit**
-| completed-draw | Fired when game end, but is no winner | ```{}``` | **on**
-| result-draw | Emit information that is draw in room to all users | ```{}```| **emit**
+| completed-draw | Fired when game ends, but there is no winner | ```{}``` | **on**
+| result-draw | Emit information about draw in room to all users | ```{}```| **emit**
 
 
 ###4. Example of game scenario
